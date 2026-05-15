@@ -1,0 +1,123 @@
+/* Yoga Pose Predictor - Elegant Theme */
+body {
+    font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+    background: linear-gradient(120deg, #f8fafc 0%, #e0e7ff 100%);
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 40px auto;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(60, 72, 100, 0.15);
+    padding: 32px 36px 24px 36px;
+    position: relative;
+    animation: fadeIn 1.2s;
+}
+
+.logo {
+    display: block;
+    margin: 0 auto 18px auto;
+    width: 350px;
+    height: 200px;
+    animation: logoPop 1.2s;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2.3rem;
+    color: #3b3b6d;
+    margin-bottom: 0.2em;
+    letter-spacing: 1px;
+}
+
+.quote {
+    text-align: center;
+    font-style: italic;
+    color: #6b7280;
+    margin-bottom: 1.5em;
+    font-size: 1.1rem;
+    animation: fadeIn 2s;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1em;
+    margin-bottom: 1.5em;
+}
+
+input[type="file"] {
+    border: 1px solid #c7d2fe;
+    border-radius: 6px;
+    padding: 7px 10px;
+    background: #f1f5f9;
+    font-size: 1rem;
+    transition: border 0.2s;
+}
+input[type="file"]:focus {
+    border: 1.5px solid #6366f1;
+}
+input[type="submit"] {
+    background: linear-gradient(90deg, #6366f1 0%, #818cf8 100%);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 28px;
+    font-size: 1.1rem;
+    font-weight: 500;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(99, 102, 241, 0.08);
+    transition: background 0.2s, transform 0.2s;
+}
+input[type="submit"]:hover {
+    background: linear-gradient(90deg, #818cf8 0%, #6366f1 100%);
+    transform: translateY(-2px) scale(1.04);
+}
+
+.result-section {
+    margin-top: 2em;
+    animation: fadeInUp 1.2s;
+}
+.result-section h2 {
+    color: #6366f1;
+    margin-bottom: 0.5em;
+}
+.result-section p, .result-section ul {
+    font-size: 1.08rem;
+    color: #374151;
+}
+.result-section ul {
+    margin-top: 0.5em;
+    margin-bottom: 1em;
+    padding-left: 1.2em;
+}
+.result-section li {
+    margin-bottom: 0.3em;
+}
+.result-section img {
+    display: block;
+    margin: 0.8em auto 0 auto;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(99, 102, 241, 0.10);
+    max-width: 100%;
+    animation: fadeIn 1.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes logoPop {
+    0% { transform: scale(0.7); opacity: 0; }
+    80% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1); }
+}

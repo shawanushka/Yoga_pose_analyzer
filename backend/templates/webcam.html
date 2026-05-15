@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Yoga Pose Predictor - Live Webcam</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <style>
+        .webcam-flex {
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            gap: 32px;
+            margin-bottom: 1.5em;
+        }
+        .webcam-video, .annotated-img {
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(99,102,241,0.10);
+            background: #f8fafc;
+        }
+        .webcam-video { width: 400px; height: 300px; transform: scaleX(-1); }
+        .annotated-img { width: 400px; height: 300px; object-fit: contain; transform: scaleX(-1); }
+        .live-result { text-align: center; margin-top: 1em; }
+        .back-btn { margin: 1.5em auto 0 auto; display: block; background: #f1f5f9; color: #6366f1; border: 1px solid #c7d2fe; border-radius: 6px; padding: 10px 28px; font-size: 1.1rem; cursor: pointer; }
+        .back-btn:hover { background: #e0e7ff; }
+        .start-btn { margin: 1em auto 2em auto; display: block; background: #6366f1; color: #fff; border: none; border-radius: 6px; padding: 10px 28px; font-size: 1.1rem; cursor: pointer; transition: background 0.2s; }
+        .start-btn:hover { background: #818cf8; }
+        #countdown { font-size: 1.3em; color: #e11d48; text-align: center; margin-bottom: 1em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="/static/logo.jpg" alt="Yoga Logo" class="logo">
+        <h1>Yoga Pose Predictor - Live Webcam</h1>
+        <div class="quote">“Yoga is the journey of the self, through the self, to the self.”<br><span style="font-size:0.95em; color:#818cf8;">— The Bhagavad Gita</span></div>
+        <button class="start-btn" id="startBtn">Start Live Detection</button>
+        <div id="countdown"></div>
+        <div class="webcam-flex">
+            <video id="webcam" class="webcam-video" width="400" height="300" autoplay muted></video>
+            <img id="annotatedImg" class="annotated-img" src="" alt="Annotated Pose" style="display:none;">
+        </div>
+        <div class="live-result" id="liveResult"></div>
+        <button class="back-btn" onclick="window.location.href='/'">Back to Upload Page</button>
+        <button class="back-btn" id="resetBtn" style="margin-top:0.5em;">Reset & Try Another Pose</button>
+    </div>
+    <canvas id="canvas" width="400" height="300" style="display:none;"></canvas>
+    <script>
+    const video = document.getElementById('webcam');
+    const canvas = document.getElementById('canvas');
+    const liveResult = document.getElementById('liveResult');
+    const annotatedImg = document.getElementById('annotatedImg');
+    const startBtn = document.getElementById('startBtn');
+    const countdown = document.getElementById('countdown');
+    let streaming = false;
+    let detecting = false;
+
+    function startWebcam() {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                video.srcObject = stream;
+                streaming = true;
+            });
+    }
+
+    function startDetection() {
+        if (!streaming) return;
+        startBtn.disabled = true;
+        countdown.textContent = 'Get into your pose! Capturing in 5...';
+        let seconds = 5;
+        const interval = setInterval(() => {
+            seconds--;
+            if (seconds > 0) {
+                countdown.textContent = `Get into your pose! Capturing in ${seconds}...`;
+            } else {
+                clearInterval(interval);
+                countdown.textContent = 'Analyzing...';
+                captureAndSend();
+            }
+        }, 1000);
+    }
+
+    function captureAndSend() {
+        if (!streaming) return;
+        canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg');
+        fetch('/predict_webcam', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ image: dataUrl })
+        })
+        .then(res => res.json())
+        .then(data => {
+            let html = `<h2>Live Result:</h2>`;
+            html += `<p><strong>Pose Name (English):</strong> ${data.pose_name}</p>`;
+            html += `<p><strong>Pose Name (Hindi):</strong> ${data.pose_hindi}</p>`;
+            html += `<p><strong>Accuracy:</strong> ${data.accuracy}%</p>`;
+            html += `<p><strong>Corrections:</strong></p><ul>`;
+            for (const c of data.corrections) html += `<li>${c}</li>`;
+            html += `</ul>`;
+            liveResult.innerHTML = html;
+            if (data.annotated_image) {
+                let imgPath = data.annotated_image;
+                if (!imgPath.startsWith('/static/')) {
+                    imgPath = '/static/' + imgPath.replace(/^.*static[\\\/]/, '');
+                }
+                // Always update the annotated image
+                annotatedImg.src = imgPath + '?t=' + new Date().getTime();
+                annotatedImg.style.display = 'block';
+            } else {
+                annotatedImg.style.display = 'none';
+                annotatedImg.src = '';
+            }
+            countdown.textContent = '';
+            startBtn.disabled = false;
+        });
+    }
+
+    window.onload = () => {
+        startWebcam();
+        startBtn.onclick = startDetection;
+        document.getElementById('resetBtn').onclick = function() {
+            annotatedImg.style.display = 'none';
+            annotatedImg.src = '';
+            liveResult.innerHTML = '';
+            countdown.textContent = '';
+            startBtn.disabled = false;
+        };
+    };
+    </script>
+</body>
+</html>
